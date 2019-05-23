@@ -50,6 +50,9 @@ class Ui_Dialog(object):
         self.output_btn = QtGui.QPushButton(Dialog)
         self.output_btn.setObjectName("output_btn")
         self.verticalLayout.addWidget(self.output_btn)
+        self.farm_btn = QtGui.QPushButton(Dialog)
+        self.farm_btn.setObjectName("farm_btn")
+        self.verticalLayout.addWidget(self.farm_btn)
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
@@ -61,5 +64,6 @@ class Ui_Dialog(object):
         self.label_5.setText(QtGui.QApplication.translate("Dialog", "Start", None, QtGui.QApplication.UnicodeUTF8))
         self.label_7.setText(QtGui.QApplication.translate("Dialog", "End", None, QtGui.QApplication.UnicodeUTF8))
         self.output_btn.setText(QtGui.QApplication.translate("Dialog", "Output", None, QtGui.QApplication.UnicodeUTF8))
+        self.farm_btn.setText(QtGui.QApplication.translate("Dialog", "Test_output_farm", None, QtGui.QApplication.UnicodeUTF8))
 
 from . import resources_rc

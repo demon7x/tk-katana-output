@@ -10,6 +10,7 @@
 
 
 import subprocess
+import sys
 
 import sgtk
 
@@ -66,6 +67,7 @@ class AppDialog(QtGui.QWidget):
 
         #self.ui.tail_lineedit.textChanged.connect(self._edit_tail)
         self.ui.output_btn.clicked.connect(self._render)
+        self.ui.farm_btn.clicked.connect(self._render_to_farm)
     
     
 
@@ -103,6 +105,37 @@ class AppDialog(QtGui.QWidget):
         subprocess.Popen(command)
         self.close()
         return
+    
+    def _render_to_farm(self):
+        
+        import tractor.api.author as author
+        
+        start_frame = int(self.ui.start_frame.text())
+        end_frame = int(self.ui.end_frame.text())
+        file_name = FarmAPI.GetKatanaFileName()
+        
+        job = author.Job()
+        job.title = '[Katana]' + file_name.split(".")[0]
+        job.service = "Linux64"
+        job.priority = 50
+        
+        for frame in range(start_frame,end_frame+1):
+            task = author.Task(title = str(frame))
+            command = ['rez-env','katana-3.1v2','renderman-22','usd','--','katana']
+            command.append("--batch")
+            command.append("--katana-file=%s"%file_name)
+            command.append("--render-node=%s"%self.ui.sel_node.text())
+            command.append(str("--t=%d-%d"%(frame,frame)))
+            command = author.Command(argv=command)
+            task.addCommand(command)
+            job.addChild(task)
+        
+        job.spool(hostname="10.0.0.80",owner="west")
+
+
+
+        
+
 
 
     
