@@ -130,7 +130,7 @@ class AppDialog(QtGui.QWidget):
             task.addCommand(command)
             job.addChild(task)
         
-        job.spool(hostname="10.0.0.80",owner="west")
+        job.spool(hostname="10.0.20.80",owner="west")
 
 
 
