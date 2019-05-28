@@ -93,15 +93,16 @@ class AppDialog(QtGui.QWidget):
         
         #tmp_file = os.path.join("/tmp",file_name.split("/")[-1])
         #KatanaFile.Save(tmp_file)
+        
 
-
-        command = ['mate-terminal','rez-env','katana-3.1.2','renderman-22','usd','--','katana']
+        command = ['mate-terminal','-x','rez-env','katana-3.1v2','renderman-22','usd','--','katana']
         
         command.append("--batch")
         command.append("--katana-file=%s"%file_name)
         command.append("--render-node=%s"%self.ui.sel_node.text())
-        command.append(str("--t=%s-%s"%(self.ui.start_frame.text(),self.ui.end_frame.text())))
-
+        command.append(str('--t=%s-%s'%(self.ui.start_frame.text(),self.ui.end_frame.text())))
+        
+        
         subprocess.Popen(command)
         self.close()
         return
