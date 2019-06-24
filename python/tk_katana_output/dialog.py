@@ -94,15 +94,21 @@ class AppDialog(QtGui.QWidget):
         #tmp_file = os.path.join("/tmp",file_name.split("/")[-1])
         #KatanaFile.Save(tmp_file)
         
-
-        command = ['mate-terminal','-x','rez-env','katana-3.1v2','renderman-22','usd','--','katana']
         
+        if os.environ['REZ_KATANA_VERSION'] == "3.1v2":
+            command = ['mate-terminal','-x','rez-env','katana-3.1v2','renderman-22','usd','--','katana']
+        else:
+            command = ['mate-terminal','-x','rez-env','katana-2.6v4','renderman-21.8','usd','--','katana']
+        
+
+
         command.append("--batch")
         command.append("--katana-file=%s"%file_name)
         command.append("--render-node=%s"%self.ui.sel_node.text())
         command.append(str('--t=%s-%s'%(self.ui.start_frame.text(),self.ui.end_frame.text())))
         
         
+
         subprocess.Popen(command)
         self.close()
         return
@@ -120,9 +126,16 @@ class AppDialog(QtGui.QWidget):
         job.service = "Linux64"
         job.priority = 50
         
+        
+
+
         for frame in range(start_frame,end_frame+1):
             task = author.Task(title = str(frame))
-            command = ['rez-env','katana-3.1v2','renderman-22','usd','--','katana']
+
+            if os.environ['REZ_KATANA_VERSION'] == "3.1v2":
+                command = ['rez-env','katana-3.1v2','renderman-22','usd','--','katana']
+            else:
+                command = ['rez-env','katana-2.6v4','renderman-21.8','usd','--','katana']
             command.append("--batch")
             command.append("--katana-file=%s"%file_name)
             command.append("--render-node=%s"%self.ui.sel_node.text())
