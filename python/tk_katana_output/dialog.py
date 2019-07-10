@@ -11,6 +11,8 @@
 
 import subprocess
 import sys
+import os
+import shutil
 
 import sgtk
 
@@ -96,9 +98,9 @@ class AppDialog(QtGui.QWidget):
         
         
         if os.environ['REZ_KATANA_VERSION'] == "3.1v2":
-            command = ['mate-terminal','-x','rez-env','katana-3.1v2','renderman-22','usd','--','katana']
+            command = ['mate-terminal','-x','rez-env','katana-3.1v2','renderman-22','usd-19.03','--','katana']
         else:
-            command = ['mate-terminal','-x','rez-env','katana-2.6v4','renderman-21.8','usd','--','katana']
+            command = ['mate-terminal','-x','rez-env','katana-2.6v4','renderman-21.8','usd-19.03','--','katana']
         
 
 
@@ -113,6 +115,17 @@ class AppDialog(QtGui.QWidget):
         self.close()
         return
     
+    def _get_temp_file(self,file_name):
+        temp = "/"
+        file_dirs = os.path.dirname(file_name).split("/")
+        filename = os.path.basename(file_name)
+        file_dirs.append("tmp")
+        file_dirs.append(filename)
+        return temp.join(file_dirs)
+
+        
+
+    
     def _render_to_farm(self):
         
         import tractor.api.author as author
@@ -120,31 +133,55 @@ class AppDialog(QtGui.QWidget):
         start_frame = int(self.ui.start_frame.text())
         end_frame = int(self.ui.end_frame.text())
         file_name = FarmAPI.GetKatanaFileName()
+
         
+
+        temp_file = self._get_temp_file(file_name)
+        if not os.path.exists(os.path.dirname(temp_file)):
+            os.makedirs(os.path.dirname(temp_file))
+        status = shutil.copyfile(file_name,temp_file)
+        print status
+
         job = author.Job()
-        job.title = '[Katana]' + file_name.split(".")[0]
+        #job.title = '[Katana]' + file_name.split(".")[0].split("/")
         job.service = "Linux64"
         job.priority = 50
         
+        file_title = file_name.split(".")[0].split("/")[-1]
+        project_name = self._app.context.project['name']
+        user_name = self._app.context.user['name']
+        user_id = os.environ['USER']
+        select_node = self.ui.sel_node.text()
         
 
+
+        temp = "] ["
+        title = []
+        title.append(user_name)
+        title.append(project_name)
+        title.append(file_title)
+        title.append(select_node)
+        title.append("%d - %d"%(start_frame,end_frame))
+        title = temp.join(title)
+        title = "["+title+"]"
+        job.title = str(title)
 
         for frame in range(start_frame,end_frame+1):
             task = author.Task(title = str(frame))
 
             if os.environ['REZ_KATANA_VERSION'] == "3.1v2":
-                command = ['rez-env','katana-3.1v2','renderman-22','usd','--','katana']
+                command = ['rez-env','katana-3.1v2','renderman-22','usd-19.03','--','katana']
             else:
-                command = ['rez-env','katana-2.6v4','renderman-21.8','usd','--','katana']
+                command = ['rez-env','katana-2.6v4','renderman-21.8','usd-19.03','--','katana']
             command.append("--batch")
-            command.append("--katana-file=%s"%file_name)
+            command.append("--katana-file=%s"%temp_file)
             command.append("--render-node=%s"%self.ui.sel_node.text())
             command.append(str("--t=%d-%d"%(frame,frame)))
             command = author.Command(argv=command)
             task.addCommand(command)
             job.addChild(task)
         
-        job.spool(hostname="10.0.20.80",owner="west")
+        job.spool(hostname="10.0.20.80",owner=user_id)
 
 
 
