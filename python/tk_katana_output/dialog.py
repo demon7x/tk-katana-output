@@ -118,8 +118,7 @@ class AppDialog(QtGui.QWidget):
     def _get_temp_file(self,file_name):
         temp = "/"
         file_dirs = os.path.dirname(file_name).split("/")
-        filename = os.path.basename(file_name)
-        file_dirs.append("tmp")
+        filename = "."+os.path.basename(file_name)
         file_dirs.append(filename)
         return temp.join(file_dirs)
 
@@ -136,7 +135,7 @@ class AppDialog(QtGui.QWidget):
 
         
 
-        temp_file = self._get_temp_file(file_name)
+        temp_file = self._get_temp_file(str(file_name))
         if not os.path.exists(os.path.dirname(temp_file)):
             os.makedirs(os.path.dirname(temp_file))
         status = shutil.copyfile(file_name,temp_file)
@@ -151,7 +150,7 @@ class AppDialog(QtGui.QWidget):
         project_name = self._app.context.project['name']
         user_name = self._app.context.user['name']
         user_id = os.environ['USER']
-        select_node = self.ui.sel_node.text()
+        select_node = str(self.ui.sel_node.text())
         
 
 
