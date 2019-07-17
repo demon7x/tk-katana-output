@@ -2,7 +2,7 @@ __author__ = 'acuthbert'
 
 from subprocess import check_output
 
-UI_PYTHON_PATH = "../python/app/ui"
+UI_PYTHON_PATH = "../python/tk_katana_output/ui"
 
 
 def build_ui(ui_name):

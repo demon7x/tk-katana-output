@@ -12,6 +12,7 @@
 import subprocess
 import sys
 import os
+import re
 import shutil
 
 import sgtk
@@ -70,6 +71,9 @@ class AppDialog(QtGui.QWidget):
         #self.ui.tail_lineedit.textChanged.connect(self._edit_tail)
         self.ui.output_btn.clicked.connect(self._render)
         self.ui.farm_btn.clicked.connect(self._render_to_farm)
+
+        self.ui.output_btn.clicked.connect(self._publish_to_shotgun)
+        self.ui.farm_btn.clicked.connect(self._publish_to_shotgun)
     
     
 
@@ -83,10 +87,19 @@ class AppDialog(QtGui.QWidget):
 
     def _set_select_node(self,eventType=None,eventID=None,node=None):
         
-        if not node:
-            node =  NodegraphAPI.GetAllSelectedNodes()[0]
-        self.ui.sel_node.setText(node.getName())
+        msg = []
+        self.selected_nodes = []
+
+        nodes =  NodegraphAPI.GetAllSelectedNodes()
+        for node in nodes:
+            if node.getType() == "Render":
+                msg.append(node.getName())
+                self.selected_nodes.append(node)
+        msg = ",".join(msg)        
+        self.ui.sel_node.setText(msg)
         return 
+
+
 
     def _render(self):
         import os
@@ -101,17 +114,23 @@ class AppDialog(QtGui.QWidget):
             command = ['mate-terminal','-x','rez-env','katana-3.1v2','renderman-22','usd-19.03','--','katana']
         else:
             command = ['mate-terminal','-x','rez-env','katana-2.6v4','renderman-21.8','usd-19.03','--','katana']
-        
 
-
-        command.append("--batch")
-        command.append("--katana-file=%s"%file_name)
-        command.append("--render-node=%s"%self.ui.sel_node.text())
-        command.append(str('--t=%s-%s'%(self.ui.start_frame.text(),self.ui.end_frame.text())))
+        temp_file = self._get_temp_file(str(file_name))
+        if not os.path.exists(os.path.dirname(temp_file)):
+            os.makedirs(os.path.dirname(temp_file))
+        status = shutil.copyfile(file_name,temp_file)
         
         
+        for node in self.selected_nodes:
 
-        subprocess.Popen(command)
+            command.append("--batch")
+            command.append("--katana-file=%s"%temp_file)
+            command.append("--render-node=%s"%node.getName())
+            command.append(str('--t=%s-%s'%(self.ui.start_frame.text(),self.ui.end_frame.text())))
+        
+        
+
+            subprocess.Popen(command)
         self.close()
         return
     
@@ -139,55 +158,98 @@ class AppDialog(QtGui.QWidget):
         if not os.path.exists(os.path.dirname(temp_file)):
             os.makedirs(os.path.dirname(temp_file))
         status = shutil.copyfile(file_name,temp_file)
-        print status
 
-        job = author.Job()
+        for node in self.selected_nodes:
+            job = author.Job()
         #job.title = '[Katana]' + file_name.split(".")[0].split("/")
-        job.service = "Linux64"
-        job.priority = 50
+            job.service = "Linux64"
+            job.priority = 50
         
-        file_title = file_name.split(".")[0].split("/")[-1]
-        project_name = self._app.context.project['name']
-        user_name = self._app.context.user['name']
-        user_id = os.environ['USER']
-        select_node = str(self.ui.sel_node.text())
+            file_title = file_name.split(".")[0].split("/")[-1]
+            project_name = self._app.context.project['name']
+            user_name = self._app.context.user['name']
+            user_id = os.environ['USER']
+            select_node = str(node.getName())
         
 
 
-        temp = "] ["
-        title = []
-        title.append(user_name)
-        title.append(project_name)
-        title.append(file_title)
-        title.append(select_node)
-        title.append("%d - %d"%(start_frame,end_frame))
-        title = temp.join(title)
-        title = "["+title+"]"
-        job.title = str(title)
+            temp = "] ["
+            title = []
+            title.append(user_name)
+            title.append(project_name)
+            title.append(file_title)
+            title.append(select_node)
+            title.append("%d - %d"%(start_frame,end_frame))
+            title = temp.join(title)
+            title = "["+title+"]"
+            job.title = str(title)
 
-        for frame in range(start_frame,end_frame+1):
-            task = author.Task(title = str(frame))
+            for frame in range(start_frame,end_frame+1):
+                task = author.Task(title = str(frame))
 
-            if os.environ['REZ_KATANA_VERSION'] == "3.1v2":
-                command = ['rez-env','katana-3.1v2','renderman-22','usd-19.03','--','katana']
+                if os.environ['REZ_KATANA_VERSION'] == "3.1v2":
+                    command = ['rez-env','katana-3.1v2','renderman-22','usd-19.03','--','katana']
+                else:
+                    command = ['rez-env','katana-2.6v4','renderman-21.8','usd-19.03','--','katana']
+                command.append("--batch")
+                command.append("--katana-file=%s"%temp_file)
+                command.append("--render-node=%s"%node.getName())
+                command.append(str("--t=%d-%d"%(frame,frame)))
+                command = author.Command(argv=command)
+                task.addCommand(command)
+                job.addChild(task)
+        
+            job.spool(hostname="10.0.20.80",owner=user_id)
+
+
+        self.close()
+        return
+
+    def _publish_to_shotgun(self):
+        
+        if not self.ui.sg_check.isChecked():
+            return
+        
+        
+        context = self._app.context
+        user = context.user
+        
+        for node in self.selected_nodes:
+            primary_path = self._get_publish_file_info(node)    
+            version = self._get_version()
+
+            if sgtk.util.find_publish(context.tank,[primary_path]):
+                continue
+
+            publish_data = {
+                "tk": context.tank,
+                "context": context,
+                "path": primary_path,
+                "name": context.entity['name'] + "_" + node.getName(),
+                "created_by": context.user,
+                "version_number": version,
+                #"thumbnail_path": item.get_thumbnail_as_path(),
+                "published_file_type": "Rendered Image",
+                #"dependency_paths": publish_dependencies
+                }
+
+            sgtk.util.register_publish(**publish_data)
+        
+
+    
+    def _get_publish_file_info(self,node):
+        index = 0
+        while 1:
+            if node.getParameter("outputs").getChild("allOutputNames").getChildByIndex(index).getValue(0) == 'primary':
+                break
             else:
-                command = ['rez-env','katana-2.6v4','renderman-21.8','usd-19.03','--','katana']
-            command.append("--batch")
-            command.append("--katana-file=%s"%temp_file)
-            command.append("--render-node=%s"%self.ui.sel_node.text())
-            command.append(str("--t=%d-%d"%(frame,frame)))
-            command = author.Command(argv=command)
-            task.addCommand(command)
-            job.addChild(task)
+                index = index + 1
+        return node.getParameter("outputs").getChild("locations").getChildByIndex(index).getValue(0)
+    
+    def _get_version(self):
         
-        job.spool(hostname="10.0.20.80",owner=user_id)
-
-
-
-        
-
-
-
+        file_name = FarmAPI.GetKatanaFileName()
+        return int(filter(str.isdigit,re.search("v\d+",file_name).group()))
     
     def closeEvent(self,event):
         

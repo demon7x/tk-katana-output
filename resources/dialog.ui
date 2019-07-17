@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>515</width>
-    <height>156</height>
+    <width>588</width>
+    <height>285</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <item>
       <widget class="QLabel" name="label_6">
        <property name="text">
-        <string>Select Node</string>
+        <string>Select Nodes</string>
        </property>
       </widget>
      </item>
@@ -70,6 +70,16 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="sg_check">
+     <property name="text">
+      <string>Publish To Shotgun</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QPushButton" name="output_btn">
      <property name="text">
       <string>Output</string>
@@ -79,7 +89,7 @@
    <item>
     <widget class="QPushButton" name="farm_btn">
      <property name="text">
-      <string>Test_output_farm</string>
+      <string>Output_Farm</string>
      </property>
     </widget>
    </item>

@@ -2,6 +2,7 @@
 
 # Form implementation generated from reading ui file 'dialog.ui'
 #
+# Created: Tue Jul 16 16:46:31 2019
 #      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -11,7 +12,7 @@ from tank.platform.qt import QtCore, QtGui
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(515, 156)
+        Dialog.resize(588, 285)
         self.verticalLayout = QtGui.QVBoxLayout(Dialog)
         self.verticalLayout.setObjectName("verticalLayout")
         self.horizontalLayout_3 = QtGui.QHBoxLayout()
@@ -47,6 +48,10 @@ class Ui_Dialog(object):
         self.verticalLayout_9.addWidget(self.end_frame)
         self.horizontalLayout.addLayout(self.verticalLayout_9)
         self.verticalLayout.addWidget(self.groupBox_3)
+        self.sg_check = QtGui.QCheckBox(Dialog)
+        self.sg_check.setChecked(True)
+        self.sg_check.setObjectName("sg_check")
+        self.verticalLayout.addWidget(self.sg_check)
         self.output_btn = QtGui.QPushButton(Dialog)
         self.output_btn.setObjectName("output_btn")
         self.verticalLayout.addWidget(self.output_btn)
@@ -59,11 +64,12 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog", "The Current Sgtk Environment", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_6.setText(QtGui.QApplication.translate("Dialog", "Select Node", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_6.setText(QtGui.QApplication.translate("Dialog", "Select Nodes", None, QtGui.QApplication.UnicodeUTF8))
         self.groupBox_3.setTitle(QtGui.QApplication.translate("Dialog", "Frame Range", None, QtGui.QApplication.UnicodeUTF8))
         self.label_5.setText(QtGui.QApplication.translate("Dialog", "Start", None, QtGui.QApplication.UnicodeUTF8))
         self.label_7.setText(QtGui.QApplication.translate("Dialog", "End", None, QtGui.QApplication.UnicodeUTF8))
+        self.sg_check.setText(QtGui.QApplication.translate("Dialog", "Publish To Shotgun", None, QtGui.QApplication.UnicodeUTF8))
         self.output_btn.setText(QtGui.QApplication.translate("Dialog", "Output", None, QtGui.QApplication.UnicodeUTF8))
-        self.farm_btn.setText(QtGui.QApplication.translate("Dialog", "Test_output_farm", None, QtGui.QApplication.UnicodeUTF8))
+        self.farm_btn.setText(QtGui.QApplication.translate("Dialog", "Output_Farm", None, QtGui.QApplication.UnicodeUTF8))
 
 from . import resources_rc
