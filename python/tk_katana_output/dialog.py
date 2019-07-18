@@ -111,9 +111,9 @@ class AppDialog(QtGui.QWidget):
         
         
         if os.environ['REZ_KATANA_VERSION'] == "3.1v2":
-            command = ['mate-terminal','-x','rez-env','katana-3.1v2','renderman-22','usd-19.03','--','katana']
+            command = ['mate-terminal','-x','rez-env','katana-3.1v2','renderman-22','usd-19.03',"yeti",'--','katana']
         else:
-            command = ['mate-terminal','-x','rez-env','katana-2.6v4','renderman-21.8','usd-19.03','--','katana']
+            command = ['mate-terminal','-x','rez-env','katana-2.6v4','renderman-21.8','usd-19.03','yeti-2.2.9','--','katana']
 
         temp_file = self._get_temp_file(str(file_name))
         if not os.path.exists(os.path.dirname(temp_file)):
@@ -188,9 +188,9 @@ class AppDialog(QtGui.QWidget):
                 task = author.Task(title = str(frame))
 
                 if os.environ['REZ_KATANA_VERSION'] == "3.1v2":
-                    command = ['rez-env','katana-3.1v2','renderman-22','usd-19.03','--','katana']
+                    command = ['rez-env','katana-3.1v2','renderman-22','usd-19.03','yeti','--','katana']
                 else:
-                    command = ['rez-env','katana-2.6v4','renderman-21.8','usd-19.03','--','katana']
+                    command = ['rez-env','katana-2.6v4','renderman-21.8','usd-19.03','yeti-2.2.9','--','katana']
                 command.append("--batch")
                 command.append("--katana-file=%s"%temp_file)
                 command.append("--render-node=%s"%node.getName())
