@@ -215,8 +215,8 @@ class AppDialog(QtGui.QWidget):
         user = context.user
         
         for node in self.selected_nodes:
-            if node.getName().find("_bty") == -1:
-                continue
+            #if node.getName().find("_bty") == -1:
+            #    continue
             primary_path = self._get_publish_file_info(node)    
             version = self._get_version()
 
