@@ -128,7 +128,7 @@ class AppDialog(QtGui.QWidget):
             command.append("--render-node=%s"%node.getName())
             command.append(str('--t=%s-%s'%(self.ui.start_frame.text(),self.ui.end_frame.text())))
         
-        
+            print command       
 
             subprocess.Popen(command)
         self.close()
@@ -199,7 +199,7 @@ class AppDialog(QtGui.QWidget):
                 task.addCommand(command)
                 job.addChild(task)
         
-            job.spool(hostname="10.0.20.80",owner=user_id)
+            job.spool(hostname="10.0.20.82",owner=user_id)
 
 
         self.close()
@@ -213,10 +213,10 @@ class AppDialog(QtGui.QWidget):
         
         context = self._app.context
         user = context.user
-        
+
         for node in self.selected_nodes:
-            #if node.getName().find("_bty") == -1:
-            #    continue
+            if node.getName().find("_bty") == -1 and context.entity['type'] == "Shot":
+                continue
             primary_path = self._get_publish_file_info(node)    
             version = self._get_version()
 
